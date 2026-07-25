@@ -215,25 +215,7 @@ final class TodoParser {
     // MARK: - 日期传播
 
     private static func propagateDateContext(_ segs: [Segment]) -> [Segment] {
-        let cal = Calendar.current
-        var anchor: Date?
-        var result: [Segment] = []
-
-        for seg in segs {
-            if let d = seg.date {
-                let isDayOnly = !containsTimeComponent(d)
-                if !isDayOnly {
-                    anchor = cal.startOfDay(for: d)
-                }
-                result.append(seg)
-            } else {
-                result.append(seg)
-            }
-        }
-
-        // 简单传播：如果前面有日期，后面没日期的待办不强行加日期
-        // （避免误加，用户没说时间就是不提醒）
-        return result
+        return segs
     }
 
     private static func containsTimeComponent(_ d: Date) -> Bool {
