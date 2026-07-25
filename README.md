@@ -1,5 +1,15 @@
 # 小豆语音待办 📝🎤
 
+<p align="center">
+  <img src="TodoVoice/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png" width="128" height="128" alt="小豆语音待办 Logo" style="border-radius: 22%; box-shadow: 0 8px 24px rgba(246, 201, 77, 0.3);">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/iOS-17.0+-FFD24A?style=for-the-badge&logo=apple&logoColor=403027" alt="iOS 17.0+">
+  <img src="https://img.shields.io/badge/SwiftUI-5.0-FFD24A?style=for-the-badge&logo=swift&logoColor=403027" alt="SwiftUI">
+  <img src="https://img.shields.io/github/license/isdou/TodoVoice?style=for-the-badge&color=FFD24A&logoColor=403027" alt="MIT License">
+</p>
+
 > 说话就能加待办，一键搞定所有事
 
 一个温暖治愈的 iOS 语音待办 App，按住说话自动转文字，智能拆分多条待办，设置提醒时间推送到系统通知。灵感来自「小豆写日记」，采用奶油黄温暖设计风格。
