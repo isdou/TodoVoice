@@ -22,24 +22,47 @@
 - Xcode 16+ 编译
 - 麦克风和语音识别权限
 
-## 🚀 快速开始
+## 🚀 安装方法
 
-1. 克隆项目
+### 方法一：自行编译（推荐）
+
+这是最简单的免费方式，不需要App Store：
+
+1. 安装 [Xcode](https://apps.apple.com/cn/app/xcode/id497799835) （Mac App Store 免费下载）
+2. 克隆项目
 ```bash
-git clone https://github.com/yourusername/TodoVoice.git
+git clone https://github.com/isdou/TodoVoice.git
 cd TodoVoice
 ```
+3. 双击打开 `TodoVoice.xcodeproj`
+4. 在左侧项目设置 → Signing & Capabilities → 选择你的Apple ID（免费账号即可）
+5. 连接你的iPhone，在「设置 → 隐私与安全性 → 开发者模式」中打开开发者模式
+6. 按 `Cmd+R` 编译运行，App就会安装到你的手机上
+7. 首次打开需要在「设置 → 通用 → VPN与设备管理」中信任你的开发者证书
 
-2. 打开 `TodoVoice.xcodeproj`
-3. 选择你的开发者团队（Signing & Capabilities）
-4. 连接 iPhone，选择设备后按 `Cmd+R` 运行
+> 免费账号签名有效期7天，过期后重新连接Xcode运行一次即可。
 
-## ⌨️ 设置操作按钮（可选）
+### 方法二：AltStore / SideStore 侧载
+
+如果你不想用Xcode，可以用AltStore/SideStore侧载ipa文件：
+- 下载最新的ipa文件从 [Releases](https://github.com/isdou/TodoVoice/releases) 页面
+- 使用AltStore签名安装到手机
+- 同样7天需要重新签名一次
+
+### 方法三：TestFlight
+
+如果有TestFlight测试链接会发布在这里：（即将推出）
+
+## ⌨️ 设置操作按钮（推荐配置）
+
+配置后任何界面都能一键唤起录音：
 
 1. 打开「设置」→「操作按钮」
 2. 滑动选择「快捷指令」
 3. 选择「录制语音待办」
 4. 现在任何界面长按操作按钮就能直接说话添加待办啦！
+
+也可以在锁屏、控制中心添加这个快捷指令。
 
 ## 🏗️ 项目结构
 
@@ -76,6 +99,23 @@ TodoVoice/
 - 卡片式布局，柔和暖阴影
 - 全圆角字体 (Rounded Design)，更友好可爱
 - 时间自适应问候语，早上好/下午好/晚上好自动切换
+- Loading状态清晰可见，不会让用户疑惑发生了什么
+
+## 📝 更新日志
+
+### v1.0 (2025-07-25)
+- 🎉 首个版本发布
+- 语音转文字自动创建待办
+- 智能拆分多条待办 + 自然语言日期识别
+- 系统本地通知提醒
+- App Intents 快捷指令支持，支持操作按钮
+- 奶油黄温暖Lifelogs风格UI
+- 待办编辑、删除、完成功能
+- 录音处理loading状态优化
+
+## 🤝 贡献
+
+欢迎Issue和PR！
 
 ## 📄 License
 
