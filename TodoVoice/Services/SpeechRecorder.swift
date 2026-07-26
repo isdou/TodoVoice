@@ -62,6 +62,12 @@ final class SpeechRecorder: ObservableObject {
 
             let input = audioEngine.inputNode
             let format = input.outputFormat(forBus: 0)
+            guard format.sampleRate > 0, format.channelCount > 0 else {
+                self.request = nil
+                try? session.setActive(false, options: .notifyOthersOnDeactivation)
+                state = .failed("当前设备没有可用的麦克风输入")
+                return
+            }
             input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in
                 request.append(buffer)
                 let level = self?.calculateLevel(buffer) ?? 0

@@ -17,6 +17,8 @@
 		A10000000000000000000010 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000010 /* NotificationManager.swift */; };
 		A10000000000000000000011 /* TodoEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000011 /* TodoEditView.swift */; };
 		A10000000000000000000012 /* XDTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000012 /* XDTheme.swift */; };
+		A10000000000000000000013 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000013 /* LaunchScreen.storyboard */; };
+		A10000000000000000000014 /* launch.png in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000014 /* launch.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +33,8 @@
 		B10000000000000000000010 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		B10000000000000000000011 /* TodoEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoEditView.swift; sourceTree = "<group>"; };
 		B10000000000000000000012 /* XDTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XDTheme.swift; sourceTree = "<group>"; };
+		B10000000000000000000013 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		B10000000000000000000014 /* launch.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = launch.png; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,6 +59,8 @@
 		D10000000000000000000002 /* TodoVoice */ = {
 			isa = PBXGroup;
 			children = (
+				B10000000000000000000013 /* LaunchScreen.storyboard */,
+				B10000000000000000000014 /* launch.png */,
 				D10000000000000000000003 /* App */,
 				D10000000000000000000004 /* Models */,
 				D10000000000000000000005 /* Services */,
@@ -177,6 +183,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				A10000000000000000000008 /* Assets.xcassets in Resources */,
+				A10000000000000000000013 /* LaunchScreen.storyboard in Resources */,
+				A10000000000000000000014 /* launch.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -244,16 +252,17 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "小豆语音待办";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "需要访问麦克风来录制你的语音，以便转换为待办事项";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "需要使用语音识别将你说的话转换成文字待办";
 				INFOPLIST_KEY_NSUserNotificationsUsageDescription = "用于在待办提醒时间发送通知给你";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.isdou.TodoVoice;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -275,16 +284,17 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "小豆语音待办";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "需要访问麦克风来录制你的语音，以便转换为待办事项";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "需要使用语音识别将你说的话转换成文字待办";
 				INFOPLIST_KEY_NSUserNotificationsUsageDescription = "用于在待办提醒时间发送通知给你";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.isdou.TodoVoice;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

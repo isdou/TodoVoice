@@ -11,7 +11,7 @@ struct ContentView: View {
 
     private var activeTodos: [TodoItem] { todos.filter { !$0.isCompleted } }
     private var completedTodos: [TodoItem] { todos.filter(\.isCompleted) }
-    
+
     private var greeting: String {
         let hour = Calendar.current.component(.hour, from: Date())
         switch hour {
@@ -423,8 +423,8 @@ private struct RecordingSheet: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var items: [ParsedTodo] = []
-    @State private var holding = false
     @State private var didParse = false
+    @State private var processingArtwork: VoiceProcessingArtwork = .thinking
 
     private var isRecording: Bool {
         if case .recording = recorder.state { return true }
@@ -509,7 +509,22 @@ private struct RecordingSheet: View {
                     await recorder.startRecording()
                 }
             }
-            .onChange(of: recorder.state) { _, _ in parseFromRecorderIfNeeded() }
+            .onChange(of: recorder.state) { _, newState in
+                if case .processing = newState {
+                    beginProcessingArtworkCycle()
+                }
+                parseFromRecorderIfNeeded()
+            }
+        }
+    }
+
+    private func beginProcessingArtworkCycle() {
+        processingArtwork = .thinking
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            guard isProcessing else { return }
+            withAnimation(.easeInOut(duration: 0.2)) {
+                processingArtwork = .generating
+            }
         }
     }
 
@@ -522,111 +537,101 @@ private struct RecordingSheet: View {
     }
 
     private var recordingBody: some View {
-        VStack(spacing: 32) {
-            Spacer().frame(height: 20)
-            waveform.frame(height: 70).padding(.horizontal, 32)
+        VStack(spacing: 14) {
+            Spacer().frame(height: 8)
+
+            Button {
+                Task { await recorder.stopRecording() }
+            } label: {
+                VoiceStateHero(
+                    imageName: "VoiceListening",
+                    title: "正在聆听…",
+                    subtitle: "轻点小豆或右上角结束",
+                    imageHeight: 174
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("正在聆听，轻点结束录音")
+
+            recordingWaveform
+                .frame(height: 36)
+                .padding(.horizontal, 54)
+
             let live = recorder.transcript.trimmingCharacters(in: .whitespacesAndNewlines)
             if !live.isEmpty {
                 Text(live)
                     .font(XD.body)
                     .foregroundStyle(XD.textPrimary)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 28)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 10)
+                    .background(XD.cardBg.opacity(0.78), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .stroke(XD.cardBorder.opacity(0.45), lineWidth: 1)
+                    }
+                    .padding(.horizontal, 24)
                     .lineLimit(4)
             } else {
-                Text("正在听你说话…")
-                    .font(XD.subhead)
-                    .foregroundStyle(XD.textSecondary)
+                Text("放松说，剩下的交给小豆")
+                    .font(XD.caption)
+                    .foregroundStyle(XD.textTertiary)
             }
-            Spacer()
-            pushToTalkButton
-            Text("按住说话，松开发送")
-                .font(XD.caption)
-                .foregroundStyle(XD.textTertiary)
-            Spacer().frame(height: 10)
+
+            Spacer(minLength: 8)
         }
-    }
-    
-    private var processingBody: some View {
-        VStack(spacing: 28) {
-            Spacer()
-            
-            ZStack {
-                Circle()
-                    .fill(XD.softYellow.opacity(0.4))
-                    .frame(width: 100, height: 100)
-                
-                ProgressView()
-                    .controlSize(.large)
-                    .tint(XD.primaryYellowDeep)
-                    .scaleEffect(1.3)
-            }
-            
-            VStack(spacing: 8) {
-                Text("正在处理录音...")
-                    .font(.system(size: 18, weight: .semibold, design: .rounded))
-                    .foregroundStyle(XD.textPrimary)
-                Text("正在识别语音并拆分待办")
-                    .font(XD.subhead)
-                    .foregroundStyle(XD.textSecondary)
-            }
-            
-            Spacer()
-        }
-        .padding(.bottom, 60)
     }
 
-    private var waveform: some View {
-        HStack(alignment: .center, spacing: 4) {
-            let levels = recorder.audioLevels.isEmpty ? Array(repeating: CGFloat(0.15), count: 28) : recorder.audioLevels
+    private var recordingWaveform: some View {
+        HStack(alignment: .center, spacing: 3) {
+            let levels = recorder.audioLevels.isEmpty
+                ? Array(repeating: CGFloat(0.16), count: 28)
+                : recorder.audioLevels
+
             ForEach(Array(levels.enumerated()), id: \.offset) { _, level in
-                let height = (isRecording || isProcessing) ? max(8, level * 60) : 10
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(LinearGradient(colors: [XD.primaryYellow, XD.primaryYellowDeep], startPoint: .bottom, endPoint: .top))
-                    .frame(width: 4, height: height)
-                    .animation(.spring(response: 0.12, dampingFraction: 0.7), value: height)
+                let height = max(5, min(34, level * 36))
+                Capsule()
+                    .fill(
+                        LinearGradient(
+                            colors: [XD.primaryYellow, XD.primaryYellowDeep],
+                            startPoint: .bottom,
+                            endPoint: .top
+                        )
+                    )
+                    .frame(width: 3, height: height)
+                    .animation(.spring(response: 0.14, dampingFraction: 0.72), value: height)
             }
         }
+        .accessibilityHidden(true)
     }
 
-    private var pushToTalkButton: some View {
-        ZStack {
-            Circle()
-                .fill(XD.primaryYellow.opacity(holding ? 0.25 : 0.15))
-                .scaleEffect(holding ? 1.5 : 1.0)
-                .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: holding)
-                .frame(width: 130, height: 130)
+    private var processingBody: some View {
+        VStack(spacing: 20) {
+            Spacer()
 
-            Image(systemName: holding ? "waveform" : "mic.fill")
-                .font(.system(size: 38, weight: .semibold))
-                .foregroundStyle(XD.primaryYellowDeep)
-                .frame(width: 88, height: 88)
-                .background(
-                    LinearGradient(colors: [XD.primaryYellow, XD.primaryYellowDeep], startPoint: .top, endPoint: .bottom),
-                    in: Circle()
-                )
-                .shadow(color: XD.warmShadow, radius: 12, x: 0, y: 6)
-                .scaleEffect(holding ? 0.92 : 1.0)
+            VoiceStateHero(
+                imageName: processingArtwork.imageName,
+                title: processingArtwork.title,
+                subtitle: processingArtwork.subtitle,
+                imageHeight: 188
+            )
+                .id(processingArtwork)
+                .transition(.opacity.combined(with: .scale(scale: 0.98)))
+
+            ProgressView()
+                .tint(XD.primaryYellowDeep)
+
+            Spacer()
         }
-        .contentShape(Circle())
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in
-                    guard !holding else { return }
-                    holding = true
-                    if !isRecording { Task { await recorder.startRecording() } }
-                }
-                .onEnded { _ in
-                    guard holding else { return }
-                    holding = false
-                    if isRecording { Task { await recorder.stopRecording() } }
-                }
-        )
+        .padding(.bottom, 40)
     }
 
     private var confirmBody: some View {
         ScrollView {
             VStack(spacing: 16) {
+                VoiceCompletionHero(count: validCount)
+                    .padding(.top, 8)
+
                 Text("已自动拆分，点条目可编辑，左滑删除")
                     .font(XD.caption)
                     .foregroundStyle(XD.textSecondary)
@@ -693,14 +698,132 @@ private struct RecordingSheet: View {
     }
 
     private var idleBody: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 20) {
             Spacer()
-            Text("按住麦克风按钮开始说话")
-                .font(XD.subhead)
-                .foregroundStyle(XD.textSecondary)
-            pushToTalkButton
+
+            Button {
+                Task { await recorder.startRecording() }
+            } label: {
+                VoiceStateHero(
+                    imageName: "VoiceReady",
+                    title: "准备好啦",
+                    subtitle: "说说你今天要做什么吧",
+                    imageHeight: 176
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("准备好了，轻点开始录音")
+
             Spacer()
         }
+    }
+}
+
+private enum VoiceProcessingArtwork: Hashable {
+    case thinking
+    case generating
+
+    var imageName: String {
+        switch self {
+        case .thinking: "VoiceThinking"
+        case .generating: "VoiceGenerating"
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .thinking: "正在思考…"
+        case .generating: "生成中…"
+        }
+    }
+
+    var subtitle: String {
+        switch self {
+        case .thinking: "小豆正在整理你的待办"
+        case .generating: "马上就好，正在生成待办事项"
+        }
+    }
+}
+
+private struct VoiceStateHero: View {
+    let imageName: String
+    let title: String
+    let subtitle: String
+    let imageHeight: CGFloat
+
+    var body: some View {
+        VStack(spacing: 10) {
+            ZStack {
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [XD.softYellow.opacity(0.38), XD.softYellow.opacity(0.04)],
+                            center: .center,
+                            startRadius: 12,
+                            endRadius: 108
+                        )
+                    )
+                    .frame(width: 216, height: 216)
+
+                Image(imageName)
+                    .renderingMode(.original)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: 280, maxHeight: imageHeight)
+                    .shadow(color: XD.primaryYellowDeep.opacity(0.12), radius: 12, x: 0, y: 7)
+                    .accessibilityHidden(true)
+            }
+            .frame(height: imageHeight + 16)
+
+            Text(title)
+                .font(.system(size: 21, weight: .bold, design: .rounded))
+                .foregroundStyle(XD.textPrimary)
+
+            Text(subtitle)
+                .font(XD.subhead)
+                .foregroundStyle(XD.textSecondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .accessibilityElement(children: .combine)
+    }
+}
+
+private struct VoiceCompletionHero: View {
+    let count: Int
+
+    var body: some View {
+        VStack(spacing: 7) {
+            ZStack {
+                Capsule()
+                    .fill(
+                        RadialGradient(
+                            colors: [XD.softYellow.opacity(0.34), XD.softYellow.opacity(0.02)],
+                            center: .center,
+                            startRadius: 18,
+                            endRadius: 128
+                        )
+                    )
+                    .frame(width: 280, height: 154)
+
+                Image("VoiceComplete")
+                    .renderingMode(.original)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: 264, maxHeight: 142)
+                    .shadow(color: XD.primaryYellowDeep.opacity(0.12), radius: 10, x: 0, y: 6)
+                    .accessibilityHidden(true)
+            }
+
+            Text("全部生成完成 🎉")
+                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .foregroundStyle(XD.textPrimary)
+
+            Text("本次共识别到 \(count) 项待办")
+                .font(XD.caption)
+                .foregroundStyle(XD.textSecondary)
+        }
+        .accessibilityElement(children: .combine)
     }
 }
 
