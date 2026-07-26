@@ -14,7 +14,7 @@
 
 一个温暖治愈的 iOS 语音待办 App，按住说话自动转文字，智能拆分多条待办，设置提醒时间推送到系统通知。灵感来自「小豆写日记」，采用奶油黄温暖设计风格。
 
-https://raw.githubusercontent.com/isdou/TodoVoice/main/demo.mp4
+https://github.com/user-attachments/assets/823c3af4-e827-404c-b598-3898ce28b31d
 
 ## ✨ 特性
 
