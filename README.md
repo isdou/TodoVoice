@@ -14,6 +14,14 @@
 
 一个温暖治愈的 iOS 语音待办 App，按住说话自动转文字，智能拆分多条待办，设置提醒时间推送到系统通知。灵感来自「小豆写日记」，采用奶油黄温暖设计风格。
 
+<p align="center">
+  <a href="demo.mp4">
+    <img src="demo-cover.png" width="320" alt="小豆语音待办演示" style="border-radius: 24px; box-shadow: 0 8px 24px rgba(246, 201, 77, 0.3);">
+  </a>
+  <br>
+  <sub>👆 点击查看演示视频</sub>
+</p>
+
 ## ✨ 特性
 
 - 🎙️ **一键语音输入** — 按住麦克风说话，松手自动识别转文字
