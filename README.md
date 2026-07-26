@@ -18,19 +18,21 @@
 
 - 🎙️ **一键语音输入** — 按住麦克风说话，松手自动识别转文字
 - 🧠 **智能拆分多条待办** — 一句话说多件事，自动识别拆分成独立待办
+- ✨ **可选 MiMo AI 增强（开发版）** — 理解碎片表达、改口和上下文，结构化提取多条待办与截止时间
 - 📅 **日期智能识别** — 自动识别"明天下午3点"、"下周一"等自然语言时间
 - 🔔 **系统通知提醒** — 到点推送本地通知，不会错过待办
 - ⌨️ **物理按键支持** — 通过快捷指令绑定 iPhone 操作按钮，任何界面一键唤起录音
 - ✏️ **编辑功能** — 随时修改待办内容和提醒时间
 - ✅ **完成勾选** — 点一下圆圈标记完成，滑动删除更快捷
 - 🎨 **奶油黄温暖UI** — 治愈系配色，圆角卡片设计，使用心情都变好
-- 🔒 **隐私优先** — 所有数据本地存储，语音识别优先设备端处理，不上传云端
+- 🔒 **隐私优先** — 待办保存在本机，语音识别优先设备端处理；开启 AI 增强后只发送识别文字，不上传原始录音
 
 ## 📱 系统要求
 
 - iOS 17.0+ (推荐 iOS 18 / iOS 26 获得最佳体验)
 - Xcode 16+ 编译
 - 麦克风和语音识别权限
+- AI 增强为 Debug 开发版功能，可选配 Xiaomi MiMo Token Plan API Key
 
 ## 🚀 安装方法
 
@@ -49,6 +51,8 @@ cd TodoVoice
 5. 连接你的iPhone，在「设置 → 隐私与安全性 → 开发者模式」中打开开发者模式
 6. 按 `Cmd+R` 编译运行，App就会安装到你的手机上
 7. 首次打开需要在「设置 → 通用 → VPN与设备管理」中信任你的开发者证书
+
+Debug 构建右上角会显示 AI 配置入口。API Key 通过安全输入框保存到 iOS 钥匙串，请勿写入源码、配置文件或 Git 提交。Release 构建不会启用这套直连原型；正式发布前应改为服务端代理。
 
 > 免费账号签名有效期7天，过期后重新连接Xcode运行一次即可。
 
@@ -85,10 +89,13 @@ TodoVoice/
 ├── Services/
 │   ├── TodoParser.swift         # 智能文本解析 & 日期提取
 │   ├── SpeechRecorder.swift     # 语音录制 & Apple Speech 识别
-│   └── NotificationManager.swift # 本地通知调度
+│   ├── NotificationManager.swift # 本地通知调度
+│   ├── AITodoExtractor.swift    # MiMo 结构化待办提取 & 本地降级
+│   └── AISettingsStore.swift    # AI 开关 & Keychain 密钥管理
 ├── Views/
 │   ├── ContentView.swift        # 主界面 & 录音Sheet
 │   ├── TodoEditView.swift       # 编辑待办页面
+│   ├── AISettingsView.swift     # Debug 版 AI 配置与连通测试
 │   └── XDTheme.swift            # 奶油黄设计系统
 └── Intents/
     └── RecordTodoIntent.swift   # App Intents 快捷指令支持
@@ -101,6 +108,15 @@ TodoVoice/
 - **App Intents** - iOS原生快捷指令集成
 - **UserNotifications** - 本地通知提醒
 - **NaturalLanguage** - 自然语言处理智能拆分待办
+- **Xiaomi MiMo 2.5** - 可选的 JSON 结构化意图提取（仅 Debug 原型）
+- **URLSession + Keychain** - API 调用与本机密钥安全存储
+
+## 🔐 AI 原型与发布边界
+
+- 默认本地解析始终保留；网络、鉴权或模型输出异常时会自动降级，不影响创建待办。
+- AI 模式仅发送 Apple Speech 得到的文字，不发送原始音频。
+- 个人 Token Plan Key 只用于开发机真机体验，不会编译进 App，也不应提交到 GitHub。
+- 面向 App Store 用户开放 AI 前，需要由服务端持有供应商密钥，并同步更新隐私政策和 App Store 隐私标签。
 
 ## 🎨 设计特点
 

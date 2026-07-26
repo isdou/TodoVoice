@@ -5,7 +5,9 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \TodoItem.createdAt, order: .reverse) private var todos: [TodoItem]
     @StateObject private var recorder = SpeechRecorder()
+    @StateObject private var aiSettings = AISettingsStore()
     @State private var showSheet = false
+    @State private var showAISettings = false
     @State private var autoStartFromShortcut = false
     @State private var editingItem: TodoItem? = nil
 
@@ -123,6 +125,7 @@ struct ContentView: View {
             .sheet(isPresented: $showSheet) {
                 RecordingSheet(
                     recorder: recorder,
+                    aiSettings: aiSettings,
                     isAutoStarted: autoStartFromShortcut,
                     onCancel: {
                         recorder.cancelRecording()
@@ -148,6 +151,13 @@ struct ContentView: View {
                 .presentationDragIndicator(.visible)
                 .interactiveDismissDisabled(true)
             }
+            #if DEBUG
+            .sheet(isPresented: $showAISettings) {
+                AISettingsView(settings: aiSettings)
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
+            }
+            #endif
             .sheet(item: $editingItem) { item in
                 TodoEditView(
                     todo: item,
@@ -203,24 +213,55 @@ struct ContentView: View {
             }
             Spacer()
             
-            if !activeTodos.isEmpty {
-                VStack(spacing: 2) {
-                    Text("\(activeTodos.count)")
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
-                        .foregroundStyle(XD.primaryYellowDeep)
-                    Text("待办")
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
-                        .foregroundStyle(XD.textSecondary)
+            HStack(spacing: 10) {
+                #if DEBUG
+                Button {
+                    showAISettings = true
+                } label: {
+                    ZStack(alignment: .topTrailing) {
+                        Circle()
+                            .fill(XD.cardBg.opacity(0.92))
+                            .frame(width: 48, height: 48)
+                            .overlay {
+                                Circle().stroke(XD.cardBorder.opacity(0.8), lineWidth: 1)
+                            }
+                            .shadow(color: XD.warmShadow, radius: 8, x: 0, y: 4)
+
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 19, weight: .semibold))
+                            .foregroundStyle(aiSettings.isEnabled ? XD.primaryYellowDeep : XD.textTertiary)
+                            .frame(width: 48, height: 48)
+
+                        Circle()
+                            .fill(aiSettings.isEnabled ? XD.success : XD.textTertiary.opacity(0.55))
+                            .frame(width: 9, height: 9)
+                            .overlay(Circle().stroke(XD.cardBg, lineWidth: 2))
+                            .offset(x: -1, y: 2)
+                    }
                 }
-                .padding(.horizontal, 18)
-                .padding(.vertical, 10)
-                .background {
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(XD.softYellow.opacity(0.5))
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .stroke(XD.primaryYellow.opacity(0.2), lineWidth: 1)
-                        }
+                .buttonStyle(.plain)
+                .accessibilityLabel(aiSettings.isEnabled ? "AI 智能整理已开启" : "配置 AI 智能整理")
+                #endif
+
+                if !activeTodos.isEmpty {
+                    VStack(spacing: 2) {
+                        Text("\(activeTodos.count)")
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .foregroundStyle(XD.primaryYellowDeep)
+                        Text("待办")
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .foregroundStyle(XD.textSecondary)
+                    }
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 10)
+                    .background {
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .fill(XD.softYellow.opacity(0.5))
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .stroke(XD.primaryYellow.opacity(0.2), lineWidth: 1)
+                            }
+                    }
                 }
             }
         }
@@ -417,6 +458,7 @@ private struct TodoCardRow: View {
 
 private struct RecordingSheet: View {
     @ObservedObject var recorder: SpeechRecorder
+    @ObservedObject var aiSettings: AISettingsStore
     let isAutoStarted: Bool
     let onCancel: () -> Void
     let onSave: ([ParsedTodo]) -> Void
@@ -425,6 +467,8 @@ private struct RecordingSheet: View {
     @State private var items: [ParsedTodo] = []
     @State private var didParse = false
     @State private var processingArtwork: VoiceProcessingArtwork = .thinking
+    @State private var isAIProcessing = false
+    @State private var extractionStatus: TodoExtractionStatus?
 
     private var isRecording: Bool {
         if case .recording = recorder.state { return true }
@@ -432,15 +476,16 @@ private struct RecordingSheet: View {
     }
     private var isProcessing: Bool {
         if case .processing = recorder.state { return true }
-        return false
+        return isAIProcessing
     }
-    private var isConfirm: Bool {
+    private var recorderHasResult: Bool {
         if case .readyToConfirm = recorder.state { return true }
         if case .failed = recorder.state {
             return !recorder.transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
         return false
     }
+    private var isConfirm: Bool { recorderHasResult && didParse && !isAIProcessing }
     private var failedMessage: String? {
         if case let .failed(msg) = recorder.state,
            recorder.transcript.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -529,11 +574,34 @@ private struct RecordingSheet: View {
     }
 
     private func parseFromRecorderIfNeeded() {
-        guard isConfirm, !didParse else { return }
+        guard recorderHasResult, !didParse else { return }
         let text = recorder.transcript.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
-        items = TodoParser.parseMultiple(text)
         didParse = true
+        let localItems = TodoParser.parseMultiple(text)
+
+        guard aiSettings.isEnabled, let key = aiSettings.apiKey() else {
+            items = localItems
+            extractionStatus = .local
+            return
+        }
+
+        isAIProcessing = true
+        extractionStatus = nil
+        beginProcessingArtworkCycle()
+        Task {
+            do {
+                items = try await AITodoExtractor.shared.extract(transcript: text, apiKey: key)
+                extractionStatus = .ai
+            } catch is CancellationError {
+                isAIProcessing = false
+                return
+            } catch {
+                items = localItems
+                extractionStatus = .fallback
+            }
+            isAIProcessing = false
+        }
     }
 
     private var recordingBody: some View {
@@ -639,6 +707,14 @@ private struct RecordingSheet: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 8)
 
+                if let extractionStatus {
+                    Label(extractionStatus.text, systemImage: extractionStatus.symbol)
+                        .font(XD.caption)
+                        .foregroundStyle(extractionStatus.color)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 20)
+                }
+
                 VStack(spacing: 0) {
                     ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                         ConfirmItemRow(
@@ -687,6 +763,8 @@ private struct RecordingSheet: View {
                 .multilineTextAlignment(.center)
             Button("重新录音") {
                 didParse = false
+                items = []
+                extractionStatus = nil
                 Task { await recorder.startRecording() }
             }
             .buttonStyle(XDYellowButton())
@@ -715,6 +793,39 @@ private struct RecordingSheet: View {
             .accessibilityLabel("准备好了，轻点开始录音")
 
             Spacer()
+        }
+    }
+}
+
+private enum TodoExtractionStatus {
+    case ai
+    case local
+    case fallback
+
+    var text: String {
+        switch self {
+        case .ai:
+            return "MiMo AI 已理解并整理这段话"
+        case .local:
+            return "已使用本地规则整理"
+        case .fallback:
+            return "AI 暂时不可用，已自动改用本地整理"
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .ai: return "sparkles"
+        case .local: return "iphone"
+        case .fallback: return "arrow.triangle.2.circlepath"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .ai: return XD.primaryYellowDeep
+        case .local: return XD.textSecondary
+        case .fallback: return XD.danger
         }
     }
 }

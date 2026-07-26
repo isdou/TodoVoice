@@ -19,6 +19,9 @@
 		A10000000000000000000012 /* XDTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000012 /* XDTheme.swift */; };
 		A10000000000000000000013 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000013 /* LaunchScreen.storyboard */; };
 		A10000000000000000000014 /* launch.png in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000014 /* launch.png */; };
+		A10000000000000000000015 /* AISettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000015 /* AISettingsStore.swift */; };
+		A10000000000000000000016 /* AITodoExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000016 /* AITodoExtractor.swift */; };
+		A10000000000000000000017 /* AISettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000017 /* AISettingsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +38,9 @@
 		B10000000000000000000012 /* XDTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XDTheme.swift; sourceTree = "<group>"; };
 		B10000000000000000000013 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B10000000000000000000014 /* launch.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = launch.png; sourceTree = SOURCE_ROOT; };
+		B10000000000000000000015 /* AISettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AISettingsStore.swift; sourceTree = "<group>"; };
+		B10000000000000000000016 /* AITodoExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AITodoExtractor.swift; sourceTree = "<group>"; };
+		B10000000000000000000017 /* AISettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AISettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +99,8 @@
 				B10000000000000000000003 /* TodoParser.swift */,
 				B10000000000000000000004 /* SpeechRecorder.swift */,
 				B10000000000000000000010 /* NotificationManager.swift */,
+				B10000000000000000000015 /* AISettingsStore.swift */,
+				B10000000000000000000016 /* AITodoExtractor.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -103,6 +111,7 @@
 				B10000000000000000000005 /* ContentView.swift */,
 				B10000000000000000000011 /* TodoEditView.swift */,
 				B10000000000000000000012 /* XDTheme.swift */,
+				B10000000000000000000017 /* AISettingsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -204,6 +213,9 @@
 				A10000000000000000000010 /* NotificationManager.swift in Sources */,
 				A10000000000000000000011 /* TodoEditView.swift in Sources */,
 				A10000000000000000000012 /* XDTheme.swift in Sources */,
+				A10000000000000000000015 /* AISettingsStore.swift in Sources */,
+				A10000000000000000000016 /* AITodoExtractor.swift in Sources */,
+				A10000000000000000000017 /* AISettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
