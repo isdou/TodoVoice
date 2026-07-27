@@ -10,6 +10,7 @@ struct TodoEditView: View {
     @State private var title: String = ""
     @State private var hasDate: Bool = false
     @State private var selectedDate: Date = Date()
+    @State private var didAppear = false
 
     var body: some View {
         NavigationStack {
@@ -100,6 +101,8 @@ struct TodoEditView: View {
                 }
             }
             .onAppear {
+                guard !didAppear else { return }
+                didAppear = true
                 title = todo.title
                 if let due = todo.dueDate {
                     hasDate = true

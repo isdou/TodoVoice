@@ -55,9 +55,7 @@ final class SpeechRecorder: ObservableObject {
             let request = SFSpeechAudioBufferRecognitionRequest()
             request.shouldReportPartialResults = true
             request.taskHint = .dictation
-            if recognizer.supportsOnDeviceRecognition {
-                request.requiresOnDeviceRecognition = true
-            }
+            request.addsPunctuation = true
             self.request = request
 
             let input = audioEngine.inputNode
@@ -108,7 +106,7 @@ final class SpeechRecorder: ObservableObject {
         request?.endAudio()
         task?.finish()
 
-        try? await Task.sleep(for: .milliseconds(800))
+        try? await Task.sleep(for: .seconds(2))
 
         request = nil
         task = nil

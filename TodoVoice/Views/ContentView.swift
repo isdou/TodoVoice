@@ -10,6 +10,7 @@ struct ContentView: View {
     @State private var showAISettings = false
     @State private var autoStartFromShortcut = false
     @State private var editingItem: TodoItem? = nil
+    @State private var showSplash = true
 
     private var activeTodos: [TodoItem] { todos.filter { !$0.isCompleted } }
     private var completedTodos: [TodoItem] { todos.filter(\.isCompleted) }
@@ -188,6 +189,21 @@ struct ContentView: View {
             .onChange(of: showSheet) { _, shown in
                 if !shown {
                     recorder.cancelRecording()
+                }
+            }
+            .overlay {
+                if showSplash {
+                    Image("launch")
+                        .resizable()
+                        .scaledToFill()
+                        .ignoresSafeArea()
+                        .transition(.opacity)
+                        .task {
+                            try? await Task.sleep(for: .seconds(2))
+                            withAnimation(.easeOut(duration: 0.4)) {
+                                showSplash = false
+                            }
+                        }
                 }
             }
         }
@@ -700,7 +716,7 @@ private struct RecordingSheet: View {
                 VoiceCompletionHero(count: validCount)
                     .padding(.top, 8)
 
-                Text("已自动拆分，点条目可编辑，左滑删除")
+                Text("已自动拆分，点条目可编辑，点击×删除")
                     .font(XD.caption)
                     .foregroundStyle(XD.textSecondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -967,21 +983,18 @@ private struct ConfirmItemRow: View {
                     .padding(.horizontal, 10)
                     .padding(.vertical, 4)
                     .background(XD.paleYellow, in: Capsule())
-                Button {
-                    item.dueDate = nil
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(XD.textTertiary)
-                        .font(.caption)
-                }
-                .buttonStyle(.plain)
             }
+
+            Button {
+                onDelete()
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundStyle(XD.textTertiary)
+                    .font(.caption)
+            }
+            .buttonStyle(.plain)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button(role: .destructive) { onDelete() } label: { Label("删除", systemImage: "trash") }
-                .tint(XD.danger)
-        }
     }
 }
