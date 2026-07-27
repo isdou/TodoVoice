@@ -7,10 +7,8 @@ struct TodoEditView: View {
     var onDelete: () -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @State private var title: String = ""
     @State private var hasDate: Bool = false
     @State private var selectedDate: Date = Date()
-    @State private var didAppear = false
 
     var body: some View {
         NavigationStack {
@@ -23,7 +21,7 @@ struct TodoEditView: View {
                             Text("待办内容")
                                 .font(XD.headline)
                                 .foregroundStyle(XD.textPrimary)
-                            TextField("待办内容", text: $title, axis: .vertical)
+                            TextField("待办内容", text: $todo.title, axis: .vertical)
                                 .font(XD.body)
                                 .foregroundStyle(XD.textPrimary)
                                 .lineLimit(3...6)
@@ -97,13 +95,10 @@ struct TodoEditView: View {
                     }
                     .fontWeight(.semibold)
                     .foregroundStyle(XD.primaryYellowDeep)
-                    .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .disabled(todo.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
             .onAppear {
-                guard !didAppear else { return }
-                didAppear = true
-                title = todo.title
                 if let due = todo.dueDate {
                     hasDate = true
                     selectedDate = max(due, Date())
@@ -115,7 +110,7 @@ struct TodoEditView: View {
     }
 
     private func save() {
-        let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = todo.title.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         todo.title = trimmed
         todo.dueDate = hasDate ? selectedDate : nil
