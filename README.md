@@ -31,16 +31,20 @@ https://github.com/user-attachments/assets/823c3af4-e827-404c-b598-3898ce28b31d
 
 ## 📱 系统要求
 
-- iOS 17.0+ (推荐 iOS 18 / iOS 26 获得最佳体验)
+- iOS 17.0 及以上
 - Xcode 16+ 编译
 - 麦克风和语音识别权限
 - AI 增强为 Debug 开发版功能，可选配 Xiaomi MiMo Token Plan API Key
 
 ## 🚀 安装方法
 
-### 方法一：自行编译（推荐）
+### 方法一：App Store（推荐）
 
-这是最简单的免费方式，不需要App Store：
+已正式上架 App Store，搜索「**小豆语音待办**」即可免费下载安装。
+
+### 方法二：自行编译
+
+如果你想体验最新的开发版功能，可以自行编译：
 
 1. 安装 [Xcode](https://apps.apple.com/cn/app/xcode/id497799835) （Mac App Store 免费下载）
 2. 克隆项目
@@ -58,16 +62,12 @@ Debug 构建右上角会显示 AI 配置入口。API Key 通过安全输入框�
 
 > 免费账号签名有效期7天，过期后重新连接Xcode运行一次即可。
 
-### 方法二：AltStore / SideStore 侧载
+### 方法三：AltStore / SideStore 侧载
 
 如果你不想用Xcode，可以用AltStore/SideStore侧载ipa文件：
 - 下载最新的ipa文件从 [Releases](https://github.com/isdou/TodoVoice/releases) 页面
 - 使用AltStore签名安装到手机
 - 同样7天需要重新签名一次
-
-### 方法三：TestFlight
-
-如果有TestFlight测试链接会发布在这里：（即将推出）
 
 ## ⌨️ 设置操作按钮（推荐配置）
 
